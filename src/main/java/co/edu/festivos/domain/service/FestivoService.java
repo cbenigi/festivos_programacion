@@ -2,6 +2,7 @@ package co.edu.festivos.domain.service;
 
 import co.edu.festivos.infrastructure.persistence.entity.FestivoEntity;
 import co.edu.festivos.infrastructure.persistence.repository.FestivoJpaRepository;
+import co.edu.festivos.infrastructure.persistence.repository.PaisJpaRepository;
 import org.springframework.stereotype.Service;
 import java.time.*;
 import java.util.*;
@@ -10,15 +11,23 @@ import java.util.stream.Collectors;
 @Service
 public class FestivoService {
     private final FestivoJpaRepository repository;
-    public FestivoService(FestivoJpaRepository repository) { this.repository = repository; }
+    private final PaisJpaRepository paisRepository;
+    public FestivoService(FestivoJpaRepository repository, PaisJpaRepository paisRepository) {
+        this.repository = repository;
+        this.paisRepository = paisRepository;
+    }
 
     public Map<String, Object> validar(Integer idPais, String textoFecha) {
         LocalDate fecha = LocalDate.parse(textoFecha);
         Map<String, Object> respuesta = new HashMap<>();
+        String pais = paisRepository.findById(idPais).orElseThrow().getNombre();
         respuesta.put("fecha", fecha.toString());
         Optional<FestivoEntity> festivo = repository.findByPaisId(idPais).stream()
                 .filter(item -> calcular(item, fecha.getYear()).equals(fecha)).findFirst();
         respuesta.put("esFestivo", festivo.isPresent());
+        respuesta.put("mensaje", festivo.isPresent()
+                ? "Este día es festivo en " + pais
+                : "Este día no es festivo en " + pais);
         festivo.ifPresent(item -> respuesta.put("nombre", item.getNombre()));
         return respuesta;
     }
