@@ -6,9 +6,9 @@ import jakarta.persistence.*;
 public class FestivoEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "idpais")
+    @ManyToOne(fetch = FetchType.EAGER, optional = false) @JoinColumn(name = "idpais")
     private PaisEntity pais;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "idtipo")
+    @ManyToOne(fetch = FetchType.EAGER, optional = false) @JoinColumn(name = "idtipo")
     private TipoEntity tipo;
     @Column(nullable = false, length = 100) private String nombre;
     @Column(nullable = false) private Integer dia;
