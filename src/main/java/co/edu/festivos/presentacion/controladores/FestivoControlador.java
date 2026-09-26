@@ -1,13 +1,19 @@
 package co.edu.festivos.presentacion.controladores;
 
 import co.edu.festivos.core.interfaces.servicios.IFestivoCrudServicio;
-import co.edu.festivos.dominio.entidades.Festivo;
+import co.edu.festivos.dominio.dtos.FestivoDetalleDto;
+import co.edu.festivos.dominio.dtos.FestivoSolicitudDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/festivos")
+@Tag(name = "Festivos (CRUD)", description = "Operaciones CRUD para la administración de días festivos")
 public class FestivoControlador {
 
     private final IFestivoCrudServicio festivoCrudServicio;
@@ -17,26 +23,33 @@ public class FestivoControlador {
     }
 
     @GetMapping
-    public List<Festivo> listar() {
+    @Operation(summary = "Listar todos los festivos configurados")
+    public List<FestivoDetalleDto> listar() {
         return festivoCrudServicio.listar();
     }
 
     @GetMapping("/{id}")
-    public Festivo buscar(@PathVariable Integer id) {
+    @Operation(summary = "Buscar festivo por identificador")
+    public FestivoDetalleDto buscar(@PathVariable Integer id) {
         return festivoCrudServicio.buscarPorId(id);
     }
 
     @PostMapping
-    public Festivo crear(@RequestBody Festivo festivo) {
-        return festivoCrudServicio.crear(festivo);
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Crear un nuevo festivo")
+    public FestivoDetalleDto crear(@Valid @RequestBody FestivoSolicitudDto solicitud) {
+        return festivoCrudServicio.crear(solicitud);
     }
 
     @PutMapping("/{id}")
-    public Festivo actualizar(@PathVariable Integer id, @RequestBody Festivo festivo) {
-        return festivoCrudServicio.actualizar(id, festivo);
+    @Operation(summary = "Actualizar festivo existente")
+    public FestivoDetalleDto actualizar(@PathVariable Integer id, @Valid @RequestBody FestivoSolicitudDto solicitud) {
+        return festivoCrudServicio.actualizar(id, solicitud);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Eliminar un festivo")
     public void eliminar(@PathVariable Integer id) {
         festivoCrudServicio.eliminar(id);
     }

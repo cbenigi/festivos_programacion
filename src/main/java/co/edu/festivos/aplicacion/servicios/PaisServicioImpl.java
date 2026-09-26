@@ -2,11 +2,13 @@ package co.edu.festivos.aplicacion.servicios;
 
 import co.edu.festivos.core.interfaces.repositorios.IPaisRepositorio;
 import co.edu.festivos.core.interfaces.servicios.IPaisServicio;
+import co.edu.festivos.dominio.dtos.PaisDto;
 import co.edu.festivos.dominio.entidades.Pais;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class PaisServicioImpl implements IPaisServicio {
@@ -18,27 +20,33 @@ public class PaisServicioImpl implements IPaisServicio {
     }
 
     @Override
-    public List<Pais> listar() {
-        return paisRepositorio.listarTodos();
+    public List<PaisDto> listar() {
+        return paisRepositorio.listarTodos().stream()
+                .map(p -> new PaisDto(p.getId(), p.getNombre()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Pais buscarPorId(Integer id) {
-        return paisRepositorio.buscarPorId(id)
+    public PaisDto buscarPorId(Integer id) {
+        Pais pais = paisRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new NoSuchElementException("País no encontrado con id: " + id));
+        return new PaisDto(pais.getId(), pais.getNombre());
     }
 
     @Override
-    public Pais crear(Pais pais) {
-        pais.setId(null);
-        return paisRepositorio.guardar(pais);
+    public PaisDto crear(PaisDto paisDto) {
+        Pais nuevo = new Pais(null, paisDto.getNombre().trim());
+        Pais guardado = paisRepositorio.guardar(nuevo);
+        return new PaisDto(guardado.getId(), guardado.getNombre());
     }
 
     @Override
-    public Pais actualizar(Integer id, Pais pais) {
-        Pais existente = buscarPorId(id);
-        existente.setNombre(pais.getNombre());
-        return paisRepositorio.guardar(existente);
+    public PaisDto actualizar(Integer id, PaisDto paisDto) {
+        Pais existente = paisRepositorio.buscarPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("País no encontrado con id: " + id));
+        existente.setNombre(paisDto.getNombre().trim());
+        Pais guardado = paisRepositorio.guardar(existente);
+        return new PaisDto(guardado.getId(), guardado.getNombre());
     }
 
     @Override

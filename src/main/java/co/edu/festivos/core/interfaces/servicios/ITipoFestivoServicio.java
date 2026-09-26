@@ -1,12 +1,12 @@
 package co.edu.festivos.core.interfaces.servicios;
 
-import co.edu.festivos.dominio.entidades.TipoFestivo;
+import co.edu.festivos.dominio.dtos.TipoFestivoDto;
 import java.util.List;
 
 public interface ITipoFestivoServicio {
-    List<TipoFestivo> listar();
-    TipoFestivo buscarPorId(Integer id);
-    TipoFestivo crear(TipoFestivo tipo);
-    TipoFestivo actualizar(Integer id, TipoFestivo tipo);
+    List<TipoFestivoDto> listar();
+    TipoFestivoDto buscarPorId(Integer id);
+    TipoFestivoDto crear(TipoFestivoDto tipoDto);
+    TipoFestivoDto actualizar(Integer id, TipoFestivoDto tipoDto);
     void eliminar(Integer id);
 }

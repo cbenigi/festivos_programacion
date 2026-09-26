@@ -2,11 +2,13 @@ package co.edu.festivos.aplicacion.servicios;
 
 import co.edu.festivos.core.interfaces.repositorios.ITipoFestivoRepositorio;
 import co.edu.festivos.core.interfaces.servicios.ITipoFestivoServicio;
+import co.edu.festivos.dominio.dtos.TipoFestivoDto;
 import co.edu.festivos.dominio.entidades.TipoFestivo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 public class TipoFestivoServicioImpl implements ITipoFestivoServicio {
@@ -18,27 +20,33 @@ public class TipoFestivoServicioImpl implements ITipoFestivoServicio {
     }
 
     @Override
-    public List<TipoFestivo> listar() {
-        return tipoRepositorio.listarTodos();
+    public List<TipoFestivoDto> listar() {
+        return tipoRepositorio.listarTodos().stream()
+                .map(t -> new TipoFestivoDto(t.getId(), t.getTipo()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public TipoFestivo buscarPorId(Integer id) {
-        return tipoRepositorio.buscarPorId(id)
+    public TipoFestivoDto buscarPorId(Integer id) {
+        TipoFestivo tipo = tipoRepositorio.buscarPorId(id)
                 .orElseThrow(() -> new NoSuchElementException("Tipo de festivo no encontrado con id: " + id));
+        return new TipoFestivoDto(tipo.getId(), tipo.getTipo());
     }
 
     @Override
-    public TipoFestivo crear(TipoFestivo tipo) {
-        tipo.setId(null);
-        return tipoRepositorio.guardar(tipo);
+    public TipoFestivoDto crear(TipoFestivoDto tipoDto) {
+        TipoFestivo nuevo = new TipoFestivo(null, tipoDto.getTipo().trim());
+        TipoFestivo guardado = tipoRepositorio.guardar(nuevo);
+        return new TipoFestivoDto(guardado.getId(), guardado.getTipo());
     }
 
     @Override
-    public TipoFestivo actualizar(Integer id, TipoFestivo tipo) {
-        TipoFestivo existente = buscarPorId(id);
-        existente.setTipo(tipo.getTipo());
-        return tipoRepositorio.guardar(existente);
+    public TipoFestivoDto actualizar(Integer id, TipoFestivoDto tipoDto) {
+        TipoFestivo existente = tipoRepositorio.buscarPorId(id)
+                .orElseThrow(() -> new NoSuchElementException("Tipo de festivo no encontrado con id: " + id));
+        existente.setTipo(tipoDto.getTipo().trim());
+        TipoFestivo guardado = tipoRepositorio.guardar(existente);
+        return new TipoFestivoDto(guardado.getId(), guardado.getTipo());
     }
 
     @Override
